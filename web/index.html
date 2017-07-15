@@ -16,6 +16,10 @@
 		<form id="country-form">
 			<label>Country Name</label>
 			<input type="text" name="country-name" id="country-name">
+			<select name="sort" id="sort">
+				<option value="name">Country Name</option>
+				<option value="population">Population</option>
+			</select>
 			<input type="submit" id="submit" value="submit">
 		</form>
 	</div>
@@ -44,9 +48,12 @@
 				event.preventDefault();
 				
 				$.ajax({
-					"type"  : "GET",
+					"type"    : "POST",
 					"url"     : '../'+$("#country-name").val(),
-					dataType: 'json',
+					"dataType": 'json',
+					"data"    : {
+						"orderBy" : $("#sort").val()
+					},
 					"success" : function(data) {
 						$("#output tbody").empty();
 						

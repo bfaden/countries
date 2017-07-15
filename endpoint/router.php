@@ -22,8 +22,12 @@ $klein->respond('/?[:name]?', function ($request, $response) {
 	}
 	
 	// sort alphabetically
-	usort($results, function ($a, $b) {
-		return strcmp($a->name, $b->name);
+	usort($results, function ($a, $b) use ($request) {
+		if(isset($request->paramsPost()->orderBy) && $request->paramsPost()->orderBy === "population" ) {
+			return $a->population == $b->population ? 0 : ($a->population > $b->population ? -1 : 1);
+		} else {
+			return strcmp($a->name, $b->name);
+		}
 	});
 	
 	$response = ['responseCode' => 0, "results" => array_slice($results, 0, 50)];
