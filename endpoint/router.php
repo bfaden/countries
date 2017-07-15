@@ -17,6 +17,11 @@ $klein->respond('GET', '/?[:name]?', function ($request, $response) {
 		return;
 	}
 	
+	// sort alphabetically
+	usort($results, function ($a, $b) {
+		return strcmp($a->name, $b->name);
+	});
+	
 	$response = ['responseCode' => 0, "results" => array_slice($results, 0, 50)];
 	
 	echo json_encode($response);
