@@ -1,15 +1,28 @@
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
 
+header('Access-Control-Allow-Origin: *');
+
 const RESTCOUNTRIES_URL = "https://restcountries.eu/rest/v2/";
 
-if (preg_match('#^/web/#', $_SERVER["REQUEST_URI"])) {
+if (!preg_match('#^/endpoint/#', $_SERVER["REQUEST_URI"])) {
 	return false;    // serve the requested resource as-is.
+}
+
+// Access-Control headers are received during OPTIONS requests
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+	if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']))
+		header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+
+	if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
+		header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+
+	exit(0);
 }
 
 $klein = new \Klein\Klein();
 
-$klein->respond('/?[:name]?', function ($request, $response) {
+$klein->respond('/endpoint/?[:name]?', function ($request, $response) {
 	$countryName = $request->name ? $request->name : '';
 	
 	$results = $countryName !== ''
