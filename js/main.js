@@ -3,6 +3,13 @@ $(function() {
 		event.preventDefault();
 		
 		$("#message").empty();
+		$("#output tbody").empty();
+				$("#totals").empty();
+				
+		if(!$("#country-name").val()) {
+			$("#message").html("Please enter a country name.");
+			return;
+		}
 		
 		$.ajax({
 			"type"    : "POST",
@@ -15,9 +22,6 @@ $(function() {
 				"orderBy" : $("#sort").val()
 			},
 			"success" : function(data) {
-				$("#output tbody").empty();
-				$("#totals").empty();
-				
 				if(data.responseCode === -1) {
 					$("#message").html(data.responseMessage);
 					return;
