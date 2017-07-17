@@ -25,9 +25,18 @@ $klein = new \Klein\Klein();
 $klein->respond('/endpoint/?[:name]?', function ($request, $response) {
 	$countryName = $request->name ? $request->name : '';
 	
-	$results = $countryName !== ''
-		? json_decode(@file_get_contents(RESTCOUNTRIES_URL . "name/" . rawurlencode($countryName)))
-		: json_decode(@file_get_contents(RESTCOUNTRIES_URL . "all"));
+	$results = [];
+	
+	if(!count($countryName)) {
+		$results = json_decode(@file_get_contents(RESTCOUNTRIES_URL . "all"));
+	} elseif(strlen($countryName) == 2 || strlen($countryName) == 3) {
+		$results = json_decode(@file_get_contents(RESTCOUNTRIES_URL . "alpha/" . rawurlencode($countryName)));
+		$results = $results ? [$results] : [];
+	}
+	
+	if (empty($results)) {
+		$results = json_decode(@file_get_contents(RESTCOUNTRIES_URL . "name/" . rawurlencode($countryName)));
+	}
 	
 	if (empty($results)) {
 		echo json_encode(["responseCode" => -1, "responseMessage" => "No Results were found"]);
