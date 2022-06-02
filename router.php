@@ -1,9 +1,5 @@
 <?php
-require_once __DIR__ . '/vendor/autoload.php';
-
-header('Access-Control-Allow-Origin: *');
-
-const RESTCOUNTRIES_URL = "https://restcountries.eu/rest/v2/";
+const RESTCOUNTRIES_URL = "https://restcountries.com/v3.1/";
 
 if (!preg_match('#^/endpoint/#', $_SERVER["REQUEST_URI"])) {
 	return false;    // serve the requested resource as-is.
@@ -20,41 +16,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 	exit(0);
 }
 
-$klein = new \Klein\Klein();
+$countryName = $_POST['name'] ? $_POST['name'] : '';
 
-$klein->respond('/endpoint/?[:name]?', function ($request, $response) {
-	$countryName = $request->name ? $request->name : '';
-	
-	$results = [];
-	
-	if(!count($countryName)) {
-		$results = json_decode(@file_get_contents(RESTCOUNTRIES_URL . "all"));
-	} elseif(strlen($countryName) == 2 || strlen($countryName) == 3) {
+$results = [];
+
+switch ($_POST['searchBy']) {
+	case 'code':
 		$results = json_decode(@file_get_contents(RESTCOUNTRIES_URL . "alpha/" . rawurlencode($countryName)));
-		$results = $results ? [$results] : [];
-	}
-	
-	if (empty($results)) {
-		$results = json_decode(@file_get_contents(RESTCOUNTRIES_URL . "name/" . rawurlencode($countryName)));
-	}
-	
-	if (empty($results)) {
-		echo json_encode(["responseCode" => -1, "responseMessage" => "No Results were found"]);
-		return;
-	}
-	
-	// sort alphabetically
-	usort($results, function ($a, $b) use ($request) {
-		if(isset($request->paramsPost()->orderBy) && $request->paramsPost()->orderBy === "population" ) {
-			return $a->population == $b->population ? 0 : ($a->population > $b->population ? -1 : 1);
+		break;
+	case 'name':
+		if($countryName == '') {
+			$results = json_decode(@file_get_contents(RESTCOUNTRIES_URL . "all"));
 		} else {
-			return strcmp($a->name, $b->name);
+			$results = json_decode(@file_get_contents(RESTCOUNTRIES_URL . "name/" . rawurlencode($countryName)));
 		}
-	});
-	
-	$response = ['responseCode' => 0, "results" => array_slice($results, 0, 50)];
-	
-	echo json_encode($response);
+		
+		break;
+}
+
+if (empty($results)) {
+	echo json_encode(["responseCode" => -1, "responseMessage" => "No Results were found"]);
+	return;
+}
+
+// sort by population
+usort($results, function ($a, $b) {
+	return $a->population == $b->population ? 0 : ($a->population > $b->population ? -1 : 1);
 });
 
-$klein->dispatch();
+$response = ['responseCode' => 0, "results" => array_slice($results, 0, 50)];
+
+echo json_encode($response);

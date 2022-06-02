@@ -4,22 +4,18 @@ $(function() {
 		
 		$("#message").empty();
 		$("#output tbody").empty();
-				$("#totals").empty();
-				
-		if(!$("#country-name").val()) {
-			$("#message").html("Please enter a country name.");
-			return;
-		}
+		$("#totals").empty();
 		
 		$.ajax({
 			"type"    : "POST",
-			"url"     : '/endpoint/'+$("#country-name").val(),
+			"url"     : '/endpoint/',
 			"dataType": 'json',
 			xhrFields: {
 				withCredentials: false
 			},
 			"data"    : {
-				"orderBy" : $("#sort").val()
+				"name" : $("#country-name").val(),
+				"searchBy" : $("#searchBy").val()
 			},
 			"success" : function(data) {
 				if(data.responseCode === -1) {
@@ -43,15 +39,15 @@ $(function() {
 					}
 					
 					var languages = $.map(value.languages, function(val, i) {
-						return val.name;
+						return val;
 					});
 					
 					$("#output tbody").append(
 						"<tr>"
-						+ "<td>"+value.name+"</td>"
-						+ "<td>"+value.alpha2Code+"</td>"
-						+ "<td>"+value.alpha3Code+"</td>"
-						+ "<td><img src=\""+value.flag+"\" width=\"100\"></td>"
+						+ "<td>"+value.name.official+"</td>"
+						+ "<td>"+value.cca2+"</td>"
+						+ "<td>"+value.cca3+"</td>"
+						+ "<td><img src=\""+value.flags.png+"\" width=\"100\"></td>"
 						+ "<td>"+value.region+"</td>"
 						+ "<td>"+value.subregion+"</td>"
 						+ "<td>"+value.population+"</td>"
@@ -83,7 +79,7 @@ $(function() {
 					+ "</ul>");
 			},
 			"error" : function() {
-				$("#message").html("this doesn't work");
+				$("#message").html("Something is not working as intended!");
 			}
 		});
 	})

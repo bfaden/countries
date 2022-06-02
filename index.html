@@ -15,18 +15,17 @@
 	
 	<div>
 		<form id="country-form">
-			<label>Country Name</label>
+			<label>Country Name:</label>
 			<input type="text" name="country-name" id="country-name">
-			<select name="sort" id="sort">
+			<label>Search By:<label>
+			<select name="searchBy" id="searchBy">
 				<option value="name">Country Name</option>
-				<option value="population">Population</option>
+				<option value="code">Country Code</option>
 			</select>
 			<input type="submit" id="submit" value="submit">
 			<span id="message"></span>
 		</form>
 	</div>
-	
-	<div id="totals"></div>
 	
 	<h2>Results</h2>
 	
@@ -45,5 +44,7 @@
 		</thead>
 		<tbody></tbody>
 	</table>
+		
+	<div id="totals"></div>
 </body>
 </html>
